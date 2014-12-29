@@ -47,7 +47,7 @@ def bitswitch_plot(bitrates, buffer_traces, bps_traces, switch_traces):
     switches_x = switch_traces["VIDEO"].x_data
     switches_y = np.array(switch_traces["VIDEO"].y_data) / 1000000.0
 
-    print switches_y
+    print(switches_y)
 
     xy = []
     for i in range(len(switches_x)):
@@ -61,7 +61,7 @@ def bitswitch_plot(bitrates, buffer_traces, bps_traces, switch_traces):
         x.append(val[0])
         y.append(val[1])
 
-    print y
+    print(y)
     # draw bitrate switches
     # x = []
     # y = []

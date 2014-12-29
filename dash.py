@@ -65,7 +65,7 @@ class HttpMetric:
     @property
     def duration_ms(self):
         ms = self.segment.real_download_time(self.bps) * 1000.0
-        print "DL time: %.2fsec (actual bps: %.2fkbps [downloadTime@%dkbps: %.2fs])  -  Segment(%dkb, %dkbps [%dkb/s]) @ %dkbps [%dkb/s]" % (
+        print("DL time: %.2fsec (actual bps: %.2fkbps [downloadTime@%dkbps: %.2fs])  -  Segment(%dkb, %dkbps [%dkb/s]) @ %dkbps [%dkb/s]" % (
             ms / 1000.0,
             self.min_required_dl_speed_bps() / 1000.0,
             self.segment.bps / 1000.0,
@@ -74,7 +74,7 @@ class HttpMetric:
             self.segment.bps/1000.0,
             self.segment.bps/1000.0/8.0,
             self.bps/1000.0,
-            self.bps/1000.0/8)
+            self.bps/1000.0/8))
         return ms
 
     def steady_state_dl_time_seconds(self):
@@ -169,5 +169,5 @@ class PerformanceMetric:
     def print_stats(self):
         print("Score: %.4f" % self.score())
         print("Underruns: %d" % self.underrun_count)
-        print self.switches["VIDEO"]
+        print(self.switches["VIDEO"])
         # print("AvgKBPS: %.4f" % np.mean(arr))

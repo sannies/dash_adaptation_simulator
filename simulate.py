@@ -3,7 +3,7 @@ __author__ = 'pokey'
 import getopt
 import sys
 from simulator import Simulator
-import cProfile, pstats, StringIO
+
 
 
 def usage():
@@ -26,6 +26,10 @@ def main(argv):
             fname = arg
 
     sim = Simulator()
+    if not fname:
+        print("--file (-f) option is required.")
+        usage()
+        sys.exit(2)
     # pr = cProfile.Profile()
     # pr.enable()
 

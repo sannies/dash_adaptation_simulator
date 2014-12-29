@@ -54,13 +54,13 @@ class Simulator(object):
 
     def read_sample_file(self, filename):
         with open(filename) as f:
-            data = map(float, f)
-        self.sample = {"VIDEO": [], "AUDIO": []}
-        # mu, std = norm.fit(data)
-        # m = self.fit_poisson(data)
-        while len(data) > 1:
-            self.sample["VIDEO"].append(data.pop() * 1000.0)
-            self.sample["AUDIO"].append(data.pop() * 1000.0)
+            data = list(map(float, f))
+            self.sample = {"VIDEO": [], "AUDIO": []}
+            # mu, std = norm.fit(data)
+            # m = self.fit_poisson(data)
+            while len(data) > 1:
+                self.sample["VIDEO"].append(data.pop() * 1000.0)
+                self.sample["AUDIO"].append(data.pop() * 1000.0)
 
     def next_segment_choices(self):
         # determine what should be fetched next. The lower buffer wins

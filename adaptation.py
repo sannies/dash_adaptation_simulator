@@ -6,7 +6,11 @@ from abc import ABCMeta, abstractmethod
 import algorithms as alg
 import bisect
 import copy
-from itertools import ifilter
+try:
+    from itertools import ifilter as filter
+except ImportError:
+    #ignore
+    print("Running Python 3?")
 
 class Adaptation(object):
     __metaclass__ = ABCMeta
@@ -154,22 +158,22 @@ class CastLabsAdaptation(Adaptation):
             self.selected_bps[type_str] = segs_sorted[0].bps
             self.hold_bps = 5
             if type_str == "VIDEO":
-                print "State 0 t=%.2f\nSelected %d bps at time [%.2f]" %(self.sim_state.t, self.selected_bps[type_str], self.sim_state.t)
+                print("State 0 t=%.2f\nSelected %d bps at time [%.2f]" %(self.sim_state.t, self.selected_bps[type_str], self.sim_state.t))
         elif cur_level <= self.level_low_seconds:
-            print "State 1 t=%.2f" % self.sim_state.t
+            print("State 1 t=%.2f" % self.sim_state.t)
             thr = 0.7 * dur
             # Build buffer state
             # Gradually increases bitrate while making sure the buffer level keeps increasing
             # selects the next higher bitrate segment which would still gain >= 3s buffer time
             if self.hold_bps == 0:
-                for x in sorted(ifilter(lambda k: k['delta'] >= thr, bps), key=lambda k: k['seg'].bps, reverse=True):
+                for x in sorted(filter(lambda k: k['delta'] >= thr, bps), key=lambda k: k['seg'].bps, reverse=True):
                     seg = x['seg']
                     delta = x['delta']
                     segs_sorted = sorted(self.segment_choices, key=lambda k: k.bps, reverse=True)
                     buffer_dt = self.state_vars.buffer_ma4_history.y_data[-1] - self.state_vars.buffer_ma4_history.y_data[-2]
                     improve = self.next_higher_bitrate(segs_sorted, seg.bps)
                     if buffer_dt <  -delta:
-                        print "Buffer DT: %.4f" % buffer_dt
+                        print("Buffer DT: %.4f" % buffer_dt)
                         self.selected_bps[type_str] = self.next_lower_bitrate(segs_sorted, self.selected_bps[type_str])
                         self.hold_bps = 1
                     elif improve > self.selected_bps[type_str]:
@@ -179,22 +183,22 @@ class CastLabsAdaptation(Adaptation):
                         self.selected_bps[type_str] = self.next_lower_bitrate(segs_sorted, self.selected_bps[type_str])
                         self.hold_bps = 2
                     if type_str == "VIDEO":
-                        print "Selected %d bps at time [%.2f] with delta=%.2f / dur: %.2f / dltime: %.2f / est bps: %d" %(self.selected_bps[type_str], self.sim_state.t, x['delta'], seg.duration_seconds, seg.real_download_time(estimated_bps), estimated_bps)
+                        print("Selected %d bps at time [%.2f] with delta=%.2f / dur: %.2f / dltime: %.2f / est bps: %d" %(self.selected_bps[type_str], self.sim_state.t, x['delta'], seg.duration_seconds, seg.real_download_time(estimated_bps), estimated_bps))
                     break
                 if self.selected_bps[type_str] == 0:
                     self.selected_bps[type_str] = segs[0].bps
                     if type_str == "VIDEO":
-                        print "Selected %d bps at time [%.2f]" %(self.selected_bps[type_str], self.sim_state.t)
+                        print("Selected %d bps at time [%.2f]" %(self.selected_bps[type_str], self.sim_state.t))
             self.hold_bps = max(0, self.hold_bps - 1)
         elif cur_level <= self.level_high_seconds:
-            print "State 2 t=%.2f" % self.sim_state.t
+            print("State 2 t=%.2f" % self.sim_state.t)
             if self.hold_bps == 0:
                 # Maintain buffer level. Prefer (high+low) / 2
                 set_point = (self.level_high_seconds + self.level_low_seconds) / 2.0
                 thr = 0.3 * dur
                 if cur_level < set_point:
                     candidate_bps = 0
-                    for x in sorted(ifilter(lambda k: k['delta'] > 0, bps), key=lambda k: k['seg'].bps, reverse=True):
+                    for x in sorted(filter(lambda k: k['delta'] > 0, bps), key=lambda k: k['seg'].bps, reverse=True):
                         candidate_bps = x['seg'].bps
                         break
                     if candidate_bps != 0:
@@ -204,15 +208,15 @@ class CastLabsAdaptation(Adaptation):
                         elif candidate_bps > self.selected_bps[type_str]:
                             self.selected_bps[type_str] = self.next_higher_bitrate(segs, self.selected_bps[type_str])
                     if type_str == "VIDEO":
-                        print "Selected %d bps at time [%.2f]" %(self.selected_bps[type_str], self.sim_state.t)
+                        print("Selected %d bps at time [%.2f]" %(self.selected_bps[type_str], self.sim_state.t))
                     self.hold_bps = 1
             self.hold_bps = max(0, self.hold_bps - 1)
         else:
-            print "State 3 t=%.2f" % self.sim_state.t
+            print("State 3 t=%.2f" % self.sim_state.t)
             segs_sorted = sorted(self.segment_choices, key=lambda k: k.bps, reverse=True)
             self.selected_bps[type_str] = self.next_higher_bitrate(segs_sorted, self.selected_bps[type_str])
             if type_str == "VIDEO":
-                print "Selected %d bps at time [%.2f]" %(self.selected_bps[type_str], self.sim_state.t)
+                print("Selected %d bps at time [%.2f]" %(self.selected_bps[type_str], self.sim_state.t))
         return self.selected_bps[type_str]
 
     def is_buffering(self):
